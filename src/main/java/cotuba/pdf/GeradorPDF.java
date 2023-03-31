@@ -1,4 +1,4 @@
-package cotuba;
+package cotuba.pdf;
 
 import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -8,20 +8,12 @@ import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.IBlockElement;
 import com.itextpdf.layout.element.IElement;
 import com.itextpdf.layout.property.AreaBreakType;
-import org.commonmark.node.AbstractVisitor;
-import org.commonmark.node.Heading;
-import org.commonmark.node.Node;
-import org.commonmark.node.Text;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
+import cotuba.domain.Capitulo;
+import cotuba.domain.Ebook;
 
-import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class GeradorPDF {
     
