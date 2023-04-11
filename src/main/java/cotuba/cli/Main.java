@@ -1,6 +1,9 @@
 package cotuba.cli;
 
+import cotuba.CotubaConfig;
 import cotuba.application.Cotuba;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class Main {
 
@@ -12,8 +15,10 @@ public class Main {
 
       var opcoesCLI = new LeitorOpcoesCLI(args);
 
-      var cotuba = new Cotuba();
-      cotuba.executa(opcoesCLI.getFormato(), opcoesCLI.getDiretorioDosMD(), opcoesCLI.getArquivoDeSaida());
+      ApplicationContext applicationContext =  new AnnotationConfigApplicationContext(CotubaConfig.class);
+      Cotuba cotuba = applicationContext.getBean(Cotuba.class);
+
+      cotuba.executa(opcoesCLI);
 
       System.out.println("Arquivo gerado com sucesso: " + opcoesCLI.getArquivoDeSaida());
 

@@ -1,5 +1,6 @@
 package cotuba.cli;
 
+import cotuba.application.ParametrosCotuba;
 import org.apache.commons.cli.*;
 
 import java.io.File;
@@ -9,7 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 
-class LeitorOpcoesCLI {
+public class LeitorOpcoesCLI implements ParametrosCotuba {
 
     private Path diretorioDosMD;
     private String formato;
@@ -18,8 +19,8 @@ class LeitorOpcoesCLI {
     public LeitorOpcoesCLI(String[] args){
 
         try {
-            Options options = criaOpcoes();
-            CommandLine cmd = parserDosArgumentos(args, options);
+            Options options = LeitorOpcoesCLI.criaOpcoes();
+            CommandLine cmd = LeitorOpcoesCLI.parserDosArgumentos(args, options);
             trataDiretorioDosMD(cmd);
             trataFormatoCmd(cmd);
             trataArquivoDeSaida(cmd);
@@ -30,52 +31,7 @@ class LeitorOpcoesCLI {
         }
     }
 
-    private void trataModoVerboso(CommandLine cmd) throws IOException {
-        if (Files.isDirectory(arquivoDeSaida)) {
-            // deleta arquivos do diretório recursivamente
-            Files.walk(arquivoDeSaida).sorted(Comparator.reverseOrder())
-                    .map(Path::toFile).forEach(File::delete);
-        } else {
-            Files.deleteIfExists(arquivoDeSaida);
-        }
-
-        modoVerboso = cmd.hasOption("verbose");
-    }
-
-    private void trataArquivoDeSaida(CommandLine cmd) {
-        String nomeDoArquivoDeSaidaDoEbook = cmd.getOptionValue("output");
-        if (nomeDoArquivoDeSaidaDoEbook != null) {
-            arquivoDeSaida = Paths.get(nomeDoArquivoDeSaidaDoEbook);
-        } else {
-            arquivoDeSaida = Paths.get("book." + formato.toLowerCase());
-        }
-    }
-
-    private void trataFormatoCmd(CommandLine cmd) {
-        String nomeDoFormatoDoEbook = cmd.getOptionValue("format");
-
-        if (nomeDoFormatoDoEbook != null) {
-            formato = nomeDoFormatoDoEbook.toLowerCase();
-        } else {
-            formato = "pdf";
-        }
-    }
-
-    private void trataDiretorioDosMD(CommandLine cmd) {
-        String nomeDoDiretorioDosMD = cmd.getOptionValue("dir");
-
-        if (nomeDoDiretorioDosMD != null) {
-            diretorioDosMD = Paths.get(nomeDoDiretorioDosMD);
-            if (!Files.isDirectory(diretorioDosMD)) {
-                throw new IllegalArgumentException(nomeDoDiretorioDosMD + " não é um diretório.");
-            }
-        } else {
-            Path diretorioAtual = Paths.get("");
-            diretorioDosMD = diretorioAtual;
-        }
-    }
-
-    private static CommandLine parserDosArgumentos(String[] args, Options options) {
+    static CommandLine parserDosArgumentos(String[] args, Options options) {
         CommandLineParser cmdParser = new DefaultParser();
         var ajuda = new HelpFormatter();
         CommandLine cmd;
@@ -92,7 +48,7 @@ class LeitorOpcoesCLI {
         return cmd;
     }
 
-    private static Options criaOpcoes() {
+    static Options criaOpcoes() {
         var options = new Options();
 
         var opcaoDeDiretorioDosMD = new Option("d", "dir", true,
@@ -113,14 +69,63 @@ class LeitorOpcoesCLI {
         return options;
     }
 
+     void trataModoVerboso(CommandLine cmd) throws IOException {
+        if (Files.isDirectory(arquivoDeSaida)) {
+            // deleta arquivos do diretório recursivamente
+            Files.walk(arquivoDeSaida).sorted(Comparator.reverseOrder())
+                    .map(Path::toFile).forEach(File::delete);
+        } else {
+            Files.deleteIfExists(arquivoDeSaida);
+        }
+
+        modoVerboso = cmd.hasOption("verbose");
+    }
+
+     void trataArquivoDeSaida(CommandLine cmd) {
+        String nomeDoArquivoDeSaidaDoEbook = cmd.getOptionValue("output");
+        if (nomeDoArquivoDeSaidaDoEbook != null) {
+            arquivoDeSaida = Paths.get(nomeDoArquivoDeSaidaDoEbook);
+        } else {
+            arquivoDeSaida = Paths.get("book." + formato.toLowerCase());
+        }
+    }
+
+     void trataFormatoCmd(CommandLine cmd) {
+        String nomeDoFormatoDoEbook = cmd.getOptionValue("format");
+
+        if (nomeDoFormatoDoEbook != null) {
+            formato = nomeDoFormatoDoEbook.toLowerCase();
+        } else {
+            formato = "pdf";
+        }
+    }
+
+     void trataDiretorioDosMD(CommandLine cmd) {
+        String nomeDoDiretorioDosMD = cmd.getOptionValue("dir");
+
+        if (nomeDoDiretorioDosMD != null) {
+            diretorioDosMD = Paths.get(nomeDoDiretorioDosMD);
+            if (!Files.isDirectory(diretorioDosMD)) {
+                throw new IllegalArgumentException(nomeDoDiretorioDosMD + " não é um diretório.");
+            }
+        } else {
+            Path diretorioAtual = Paths.get("");
+            diretorioDosMD = diretorioAtual;
+        }
+    }
+
+
+    @Override
     public Path getDiretorioDosMD() {
         return diretorioDosMD;
     }
 
+    @Override
     public String getFormato() {
         return formato;
     }
 
+    @Override
     public Path getArquivoDeSaida() {
         return arquivoDeSaida;
     }

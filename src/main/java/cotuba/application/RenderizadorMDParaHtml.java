@@ -1,6 +1,7 @@
-package cotuba.md;
+package cotuba.application;
 
 import cotuba.domain.Capitulo;
+import cotuba.md.RenderizadorMDParaHtmlComCommonMark;
 import org.commonmark.node.AbstractVisitor;
 import org.commonmark.node.Heading;
 import org.commonmark.node.Node;
@@ -8,38 +9,12 @@ import org.commonmark.node.Text;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
-import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class RenderizadorMDParaHtml {
-
-    public List<Capitulo> renderiza(Path diretorioDosMD){
-
-        return obtemArquivosMD(diretorioDosMD).stream()
-                .map(arquivoMD -> {
-                    Capitulo capitulo = new Capitulo();
-                    Node document = parseDoMD(arquivoMD, capitulo);
-                    renderizaParaHTML(arquivoMD, capitulo, document);
-                    return capitulo;
-                }).toList();
-    }
-    public List<Path> obtemArquivosMD(Path diretorioDosMD){
-        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.md");
-        try (Stream<Path> arquivosMD = Files.list(diretorioDosMD)){
-            return arquivosMD.filter(matcher::matches).collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new IllegalStateException("Erro tentando encontrar arquivos .md em " + diretorioDosMD.toAbsolutePath(), e);
-        }
-    }
-
-    private static void renderizaParaHTML(Path arquivoMD, Capitulo capitulo, Node document){
+public interface RenderizadorMDParaHtml {
+    static void renderizaParaHTML(Path arquivoMD, Capitulo capitulo, Node document) {
         try {
             HtmlRenderer renderer = HtmlRenderer.builder().build();
             String html = renderer.render(document);
@@ -50,7 +25,7 @@ public class RenderizadorMDParaHtml {
         }
     }
 
-    private static Node parseDoMD(Path arquivoMD, Capitulo capitulo) {
+    static Node parseDoMD(Path arquivoMD, Capitulo capitulo) {
         Parser parser = Parser.builder().build();
         Node document = null;
         try {
@@ -75,4 +50,12 @@ public class RenderizadorMDParaHtml {
         }
         return document;
     }
+
+    static RenderizadorMDParaHtmlComCommonMark cria(){
+        return new RenderizadorMDParaHtmlComCommonMark();
+    }
+
+    List<Capitulo> renderiza(Path diretorioDosMD);
+
+    List<Path> obtemArquivosMD(Path diretorioDosMD);
 }
